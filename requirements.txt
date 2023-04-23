@@ -1,0 +1,8 @@
+numpy
+matplotlib
+pip
+torch
+torchvision
+opencv-python
+PyYAML
+open3d
