@@ -67,7 +67,7 @@ class SubtileEdgeDetector():
         self.create_gabor_filters()
 
 
-    def compute(self, image: np.ndarray) -> Tuple[np.ndarray, np.ndarray, List[np.ndarray], np.ndarray]:
+    def compute(self, image: np.ndarray):
         """
         Perform edge detection on the input image.
 
@@ -96,7 +96,7 @@ class SubtileEdgeDetector():
         # Filter valid edges by length threshold
         self.fillet_edges(gray)
 
-        return self.edgel_magnitude_subpix, self.edgel_mask, self.edgel_contours_subpix, self.edgel_theta
+
 
     def fillet_edges(self, img_in: np.ndarray) -> None:
         """
