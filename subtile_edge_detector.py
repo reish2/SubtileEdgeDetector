@@ -123,7 +123,7 @@ class SubtileEdgeDetector():
             # Check if the contour length is greater than the threshold
             if cv2.arcLength(contour, True) > self.config.edge_length_threshold:
                 # Draw valid contours on the binary mask
-                cv2.drawContours(self.edgel_mask, [contour], -1, 255, thickness=cv2.FILLED)
+                cv2.drawContours(self.edgel_mask, [contour], -1, 255, thickness=1)
 
                 # Extract valid subpixel coordinates and append them to the filtered contour output list
                 x = self._edgel_xy_subpix[contour[:, 0, 1], contour[:, 0, 0], 0]
