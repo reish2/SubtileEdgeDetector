@@ -110,7 +110,7 @@ class SubtileEdgeDetector():
         # Find contours of the edges
         self._valid_edgel_mask = self._non_max_suppression_mask & self._edgel_parabola_valid_mask
         edges = self._valid_edgel_mask.astype(np.uint8)
-        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
         # Create a mask with the same dimensions as the image
         self.edgel_mask = np.zeros_like(edges)
