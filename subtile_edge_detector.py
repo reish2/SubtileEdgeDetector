@@ -15,7 +15,6 @@ class SubtileEdgeDetectorConfig:
         gabor_num_filters (int): The number of filters with different orientations. Default is 16.
         non_max_suppression_winsize (int): The window size for non-maximum suppression. Default is 5.
         edge_length_threshold (int): The minimum length of edges to be considered valid. Default is 10.
-        debug (bool): Enable debug mode to display intermediate results. Default is True.
     """
 
     def __init__(self) -> None:
@@ -28,7 +27,6 @@ class SubtileEdgeDetectorConfig:
         self.gabor_num_filters = 16
         self.non_max_suppression_winsize = 5
         self.edge_length_threshold = 10
-        self.debug = True
 
 
 class SubtileEdgeDetector():
@@ -136,12 +134,41 @@ class SubtileEdgeDetector():
                 res[:, 0, 1] = y[v]
                 self.edgel_contours_subpix.append(res)
 
-        # Display the results if debug mode is enabled
-        if self.config.debug:
-            plt.imshow(img_in)
-            for contour in self.edgel_contours_subpix:
-                plt.plot(contour[:, 0, 0], contour[:, 0, 1])
-            plt.show()
+        #self.edgel_contours_subpix = self.join_contours(self.edgel_contours_subpix, 1)
+
+    def plot_results(self, image: np.ndarray) -> None:
+        """
+        Plot the results of the SubtileEdgeDetector on a 2x2 grid using matplotlib.
+
+        :param image: The input image as a numpy array.
+        """
+        fig, ax = plt.subplots(2, 2, figsize=(10, 10))
+
+        # Display edgel_magnitude_subpix
+        ax[0, 0].imshow(self.edgel_magnitude_subpix)
+        ax[0, 0].set_title("Edgel Magnitude Subpixel")
+        ax[0, 0].axis('off')
+
+        # Display edgel_mask
+        ax[0, 1].imshow(self.edgel_mask)
+        ax[0, 1].set_title("Edgel Mask")
+        ax[0, 1].axis('off')
+
+        # Display edgel_contours_subpix
+        ax[1, 0].imshow(image)
+        for contour in self.edgel_contours_subpix:
+            ax[1, 0].plot(contour[:, 0, 0], contour[:, 0, 1], linewidth=0.5)
+        ax[1, 0].set_title("Edgel Contours Subpixel")
+        ax[1, 0].axis('off')
+
+        # Display edgel_theta
+        ax[1, 1].imshow(self.edgel_theta, cmap='jet')
+        ax[1, 1].set_title("Edgel Theta")
+        ax[1, 1].axis('off')
+
+        # Adjust layout and display the plot
+        plt.tight_layout()
+        plt.show()
 
     def compute_non_max_suppression_mask(self) -> None:
         """

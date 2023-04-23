@@ -16,4 +16,7 @@ config = SubtileEdgeDetectorConfig()
 # Create an instance of the SubtileEdgeDetector class with the custom configuration
 detector = SubtileEdgeDetector(config)
 detector.compute(img1)
+detector.plot_results(img1)
+
 detector.compute(img2)
+detector.plot_results(img2)
