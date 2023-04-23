@@ -253,6 +253,8 @@ class SubtileEdgeDetector():
         orthogonal_maxima_offset, edge_magnitude_subpix, parabola_valid_mask = self.find_parabola_maximum(mag_n1,
                                                                                                      self._edgel_magnitude,
                                                                                                      mag_p1)
+        edge_magnitude_subpix[~parabola_valid_mask] = self._edgel_magnitude[~parabola_valid_mask]
+
         # Calculate subpixel accurate coordinates for all edges (valid and invalid)
         # Note: All pixels are treated as edges initially, and only some are valid.
         # This approach simplifies the code.
