@@ -2,8 +2,9 @@ import cv2
 import numpy as np
 from subtile_edge_detector import SubtileEdgeDetector, SubtileEdgeDetectorConfig
 
-img1 = cv2.imread("./data/Melbourne-Edge-test-of-contrast-sensitivity.png").astype(np.float32)/255.0
+img1 = cv2.imread("./data/edge_detector_test.png").astype(np.float32)/255.0
 img2 = cv2.imread("./data/gates.png").astype(np.float32)/255.0
+img3 = cv2.imread("./data/Melbourne-Edge-test-of-contrast-sensitivity.png").astype(np.float32)/255.0
 
 
 # Create a custom configuration object
@@ -17,6 +18,9 @@ config = SubtileEdgeDetectorConfig()
 detector = SubtileEdgeDetector(config)
 detector.compute(img1)
 detector.plot_results(img1)
+
+detector.compute(img3)
+detector.plot_results(img3)
 
 detector.compute(img2)
 detector.plot_results(img2)
