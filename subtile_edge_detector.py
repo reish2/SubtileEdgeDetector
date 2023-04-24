@@ -155,7 +155,6 @@ class SubtileEdgeDetector():
                 res[:, 0, 1] = y[v]
                 self.edgel_contours_subpix.append(res)
 
-        #self.edgel_contours_subpix = self.join_contours(self.edgel_contours_subpix, 1)
 
     def plot_results(self, image: np.ndarray) -> None:
         """
@@ -178,7 +177,7 @@ class SubtileEdgeDetector():
         # Display edgel_contours_subpix
         ax[1, 0].imshow(image)
         for contour in self.edgel_contours_subpix:
-            ax[1, 0].plot(contour[:, 0, 0], contour[:, 0, 1], linewidth=0.5)
+            ax[1, 0].plot(contour[:, 0, 0], contour[:, 0, 1], linewidth=2.5)
         ax[1, 0].set_title("Edgel Contours Subpixel")
         ax[1, 0].axis('off')
 
@@ -187,9 +186,18 @@ class SubtileEdgeDetector():
         ax[1, 1].set_title("Edgel Theta")
         ax[1, 1].axis('off')
 
+        # Show detected contours in a full frame plot
+        fig2, ax2 = plt.subplots(1,1)
+        ax2.imshow(image)
+        for contour in self.edgel_contours_subpix:
+            ax2.plot(contour[:, 0, 0], contour[:, 0, 1], linewidth=2)
+        ax2.set_title("Edgel Contours Subpixel")
+        ax2.axis('off')
+
         # Adjust layout and display the plot
         plt.tight_layout()
         plt.show()
+
 
     def compute_non_max_suppression_mask(self) -> None:
         """
