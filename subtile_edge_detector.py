@@ -258,7 +258,7 @@ class SubtileEdgeDetector():
         argmax_offset, self._edgel_magnitude, mask = self.find_parabola_maximum(gabor_img_grad_tensor[y_ind, x_ind, argmax_n1],
                                                                                gabor_img_grad_tensor[y_ind, x_ind, argmax],
                                                                                gabor_img_grad_tensor[y_ind, x_ind, argmax_p1])
-
+        self._edgel_magnitude[~mask] = gabor_img_grad_tensor[y_ind, x_ind, argmax][~mask]
         self.edgel_theta = self._gabor_angles[argmax] + (self._gabor_angles[1] - self._gabor_angles[0]) * argmax_offset * mask.astype(np.float32)
 
         # Update the edgel orthogonal basis vector for later use
