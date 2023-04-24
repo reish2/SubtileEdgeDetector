@@ -13,6 +13,13 @@ Features
 - Configurable edge-length filter threshold
 - Debug mode for visualizing intermediate results
 
+Limitations
+-----------
+
+It is important to note that the current Gabor gradient kernels used in the edge detection may not work well on very thin lines, where there is a rapid change from background to foreground brightness and back within a distance of the kernel's window size. This limitation can result in less accurate detection or missed edges in images with thin lines or fine structures.
+
+Detecting thin faint lines may be achieved using a tuned kernel instead, though this would not generalize very well.
+
 Setup
 -----
 To install the SubtileEdgeDetector library, simply clone the repository and install the required dependencies:
@@ -82,8 +89,6 @@ detector.edgel_theta
 
 `detector.edgel_theta`: This numpy array contains the edge orientation angles (in radians) for each pixel in the image. The angles are estimated using Gabor filters and represent the direction orthogonal to the edge at each pixel location.
 
-It is important to note that the current Gabor gradient kernels used in the edge detection may not work well on very thin lines, where there is a rapid change from background to foreground brightness and back within a distance of the kernel's window size. This limitation can result in less accurate detection or missed edges in images with thin lines or fine structures.
-
 Configuration
 -------------
 
@@ -105,6 +110,47 @@ detector = SubtileEdgeDetector(config)
 detector.config.edge_length_threshold = 10
 detector.apply_config_changes() # make sure to call the apply_config_changes() method
 ```
+
+Examples
+--------
+
+Tesing the results of the `SubtileEdgeDetector` on `data/edge_detector_test.png`
+![Edge test input image](data/edge_detector_test.png)
+
+Yields the following result when `detector.plot_results()` is called:
+![edge_detector_test_all_outputs.png](images%2Fedge_detector_test_all_outputs.png)
+
+The top-left panel displays the magnitude of the strongest oriented image gradient. 
+Applying non-maximum suppression results in the binary edge mask shown in the 
+top-right panel. The bottom-left panel presents the sub-pixel accurate contours, 
+while the bottom-right panel illustrates the corresponding edgel orientations in 
+false colors.
+
+Reviewing the subpixel contours of the lower left pannel, we note the following details:
+
+<table>
+  <tr>
+    <td width="25%" valign="top">
+      <img src="images/edge_detector_test_all_outputs_255_254_pattern.png" alt="Subtile Brightness Change detail" width="100%">
+      The brightness changes subtily from 255 to 254. Note how the edge detector finds this subtile change.
+    </td>
+    <td width="25%" valign="top">
+      <img src="images/edge_detector_test_all_outputs_45Deg_pattern.png" alt="45° Subpixel edges detail" width="100%">
+      Checking the alignment of the contours around the 45° rotated rectangle, good subpixel alignment is observed.
+    </td>
+    <td width="25%" valign="top">
+      <img src="images/edge_detector_test_all_outputs_1Deg_pattern.png" alt="1° Subpixel edges detail" width="100%">
+      Similarly, good subpixel alignment with the 1° rotated rectangle is observed.
+    </td>
+    <td width="25%" valign="top">
+      <img src="images/edge_detector_test_all_outputs_0.5Deg_pattern.png" alt="0.5° Subpixel edges detail" width="100%">
+      Here, good subpixel alignment with the 0.5° rotated rectangle is observed.
+    </td>
+  </tr>
+</table>
+
+It should be noted that artifacts may be observed in low-texture regions where the
+non-maximum suppression detects changes at the periphery of the Gabor kernel window.
 
 Contributing
 ------------
