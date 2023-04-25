@@ -16,7 +16,7 @@ Features
 Limitations
 -----------
 
-It is important to note that the current Gabor gradient kernels used in the edge detection may not work well on very thin lines, where there is a rapid change from background to foreground brightness and back within a distance of the kernel's window size. This limitation can result in less accurate detection or missed edges in images with thin lines or fine structures.
+It is important to note that the current Gabor gradient kernels used in the edge detection (step function) may not work well on very thin lines (Dirac-like function w.r.t. the Gabor kernel), where there is a rapid change from background to foreground brightness and back within a distance of the kernel's window size. This limitation can result in less accurate detection or missed edges in images with thin lines or fine structures.
 
 Detecting thin faint lines may be achieved using a tuned kernel instead, though this would not generalize very well.
 
