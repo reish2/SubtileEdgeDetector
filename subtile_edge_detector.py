@@ -49,6 +49,8 @@ class SubtileEdgeDetectorConfig:
         # Artifacts (false edges) may be created if the non-max suppression window is smaller than the kernel size
         self.non_max_suppression_winsize = self.gabor_kernel_size+2
         self.edge_length_threshold = 10
+        self.gabor_kernel_type_options = ["Step", "Dirac"]
+        self.gabor_kernel_type = self.gabor_kernel_type_options[0]
 
 
 class SubtileEdgeDetector():
@@ -88,6 +90,13 @@ class SubtileEdgeDetector():
         # Create Gabor filters based on the configuration
         self.create_gabor_filters()
 
+        if self.config.gabor_kernel_type not in self.config.gabor_kernel_type_options:
+            self.config.gabor_kernel_type = self.config.gabor_kernel_type_options[0]
+
+        # Set the Gabor gradient kernels based on the configuration
+        self._gabor_grad_kernels = self._gabor_step_kernels  # Default
+        if self.config.gabor_kernel_type == "Dirac":
+            self._gabor_grad_kernels = self._gabor_dirac_kernels
 
     def compute(self, image: np.ndarray):
         """
@@ -275,23 +284,30 @@ class SubtileEdgeDetector():
         """
         ksize = self.config.gabor_kernel_size
         num_filters = self.config.gabor_num_filters
-        filters = []
+        filters_step = []  # filters suitable for step function edges
+        filters_dirac = [] # filters suitable for dirac-like function edges (high-contrast thin lines)
         kshape = (ksize, ksize)
         decay = 2.0
         sigma = ksize / (decay * 3.0)
-        lbd = ksize / decay
+        lbd = (ksize+3) / decay
         gamma = 1.0 / decay
-        psi = np.pi / 2.0
+        psi_step = np.pi / 2.0
+        psi_dirac = 0
         ktype = cv2.CV_32F
         angles = np.arange(0, np.pi, np.pi / num_filters)
 
         for theta in angles:  # Theta is the orientation for edge detection
-            kernel = cv2.getGaborKernel(kshape, sigma, theta, lbd, gamma, psi, ktype)
-            kernel /= 1.0 * np.absolute(kernel).sum()  # Brightness normalization
-            filters.append(kernel)
+            kernel_step = cv2.getGaborKernel(kshape, sigma, theta, lbd, gamma, psi_step, ktype)
+            kernel_step /= 1.0 * np.absolute(kernel_step).sum()  # Brightness normalization
+            filters_step.append(kernel_step-np.mean(kernel_step))
 
-        self._gabor_grad_kernels, self._gabor_angles = filters, angles
+            kernel_dirac = cv2.getGaborKernel(kshape, sigma, theta, lbd, gamma, psi_dirac, ktype)
+            kernel_dirac /= 1.0 * np.absolute(kernel_dirac).sum()  # Brightness normalization
+            filters_dirac.append(kernel_dirac-np.mean(kernel_dirac))
 
+        self._gabor_step_kernels = filters_step
+        self._gabor_dirac_kernels = filters_dirac
+        self._gabor_angles = angles
 
     def compute_subpixel_edgels(self, gray: np.ndarray) -> None:
         """

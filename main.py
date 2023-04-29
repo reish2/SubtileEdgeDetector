@@ -34,6 +34,7 @@ config = SubtileEdgeDetectorConfig()
 # config.non_max_suppression_winsize = 7
 # config.edge_length_threshold = 20
 # config.debug = True
+# config.gabor_kernel_type = "Dirac"
 
 # Create an instance of the SubtileEdgeDetector class with the custom configuration
 detector = SubtileEdgeDetector(config)
