@@ -46,7 +46,8 @@ class SubtileEdgeDetectorConfig:
         """
         self.gabor_kernel_size = 11
         self.gabor_num_filters = 16
-        self.non_max_suppression_winsize = 5
+        # Artifacts (false edges) may be created if the non-max suppression window is smaller than the kernel size
+        self.non_max_suppression_winsize = self.gabor_kernel_size+2
         self.edge_length_threshold = 10
 
 
@@ -213,13 +214,14 @@ class SubtileEdgeDetector():
         nms_valid = np.ones_like(self.edgel_magnitude_subpix, dtype=bool)
 
         # Iterate through the window
-        for h in np.linspace(-window_size / 2, window_size / 2, window_size, endpoint=True):
+        h_offsets = np.linspace(-(window_size // 2), window_size // 2, window_size, endpoint=True)
+        for h in h_offsets:
             # Calculate x and y indices by adding h * orthogonal basis to the initial x and y indices
             x_ind = (self._x0_ind + h * self._edgel_x_ortho_basis).astype(np.float32)
             y_ind = (self._y0_ind + h * self._edgel_y_ortho_basis).astype(np.float32)
 
             # Sample the magnitude values at the calculated x and y indices
-            mag_sample = cv2.remap(self._edgel_magnitude, x_ind, y_ind, cv2.INTER_LANCZOS4)
+            mag_sample = cv2.remap(self._edgel_magnitude, x_ind, y_ind, cv2.INTER_LINEAR)
 
             # Update the non-maximum suppression mask by retaining only the local maxima
             nms_valid = nms_valid & (self.edgel_magnitude_subpix >= mag_sample)
@@ -300,10 +302,10 @@ class SubtileEdgeDetector():
         # Create three new meshgrid arrays to sample the magnitude image along the edge orthogonal direction
         x_ind_n1 = (self._x0_ind - self._edgel_x_ortho_basis).astype(np.float32)
         y_ind_n1 = (self._y0_ind - self._edgel_y_ortho_basis).astype(np.float32)
-        mag_n1 = cv2.remap(self._edgel_magnitude, x_ind_n1, y_ind_n1, cv2.INTER_LANCZOS4)
+        mag_n1 = cv2.remap(self._edgel_magnitude, x_ind_n1, y_ind_n1, cv2.INTER_LINEAR)
         x_ind_p1 = (self._x0_ind + self._edgel_x_ortho_basis).astype(np.float32)
         y_ind_p1 = (self._y0_ind + self._edgel_y_ortho_basis).astype(np.float32)
-        mag_p1 = cv2.remap(self._edgel_magnitude, x_ind_p1, y_ind_p1, cv2.INTER_LANCZOS4)
+        mag_p1 = cv2.remap(self._edgel_magnitude, x_ind_p1, y_ind_p1, cv2.INTER_LINEAR)
 
         # Calculate orthogonal maxima offset, subpixel edge magnitude, and parabolic validity mask
         orthogonal_maxima_offset, edge_magnitude_subpix, parabola_valid_mask = self.find_parabola_maximum(mag_n1,
