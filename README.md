@@ -7,18 +7,44 @@ SubtileEdgeDetector is a Python library for detecting and extracting subpixel-ac
 
 Features
 --------
-- Faint subpixel-accurate edge-detection using Gabor filters and parabolic fitting
-- Configurable Gabor filter parameters, including kernel size and number of orientations
-- Configurable non-maximum suppression window size
-- Configurable edge-length filter threshold
-- Debug mode for visualizing intermediate results
+
+The SubpixelEdgeDetector class is designed for high-quality edge detection with subpixel accuracy. The key features include:
+- **Faint Subpixel-Accurate Edge Detection**: Utilizes Gabor filters and parabolic fitting to detect faint edges with subpixel accuracy.
+    ![faint_edges.png](images%2Ffaint_edges.png)
+- **Configurable Gabor Filter Parameters**: Provides customizable Gabor filter settings, including kernel size and number of orientations.
+    ![gabor_kernels.svg](images%2Fgabor_kernels.svg)
+- **Non-Maximum Suppression**: Applies configurable non-maximum suppression with a customizable window size to the edge magnitudes to find local maxima along the edge orthogonal direction. 
+- **Edge-Length Filter Threshold**: Allows users to configure an edge-length filter threshold to remove insignificant edges.
+    ![Edge_thresholds.png](images%2FEdge_thresholds.png)
 
 Limitations
 -----------
 
 It is important to note that the current Gabor gradient kernels used in the edge detection (step function) may not work well on very thin lines (Dirac-like function w.r.t. the Gabor kernel), where there is a rapid change from background to foreground brightness and back within a distance of the kernel's window size. This limitation can result in less accurate detection or missed edges in images with thin lines or fine structures.
+Notice how the detected subpixel edges (colored lines) for the 5, 10 and 20 pixel lines hug their corresponding step-edges while the contours for the 0.5, 1, 2, 3 and 4 pixel lines are offset from the lines centers.
+![Thin_lines_step.png](images%2FThin_lines_step.png)
 
-Detecting thin faint lines may be achieved using a tuned kernel instead, though this would not generalize very well.
+Detecting thin faint lines may be achieved using a tuned kernel instead. Try using the `config.gabor_kernel_type = "Dirac"` option to achieve this.
+Notice how the center of the thin lines (0.5 to 3 pxel lines) are traced with subpixel accuracy by the detected contours (colored lines), while the edges for step changes become very inaccurate.
+![Thin_lines_dirac.png](images%2FThin_lines_dirac.png)
+
+To try this out test `Step` or `Dirac` options for `config.gabor_kernel_type` in the following python code:
+```python
+import cv2
+import numpy as np
+from subtile_edge_detector import SubtileEdgeDetector, SubtileEdgeDetectorConfig
+
+img1 = cv2.imread("./data/edge_detector_test.png").astype(np.float32)/255.0
+
+# Create a custom configuration object
+config = SubtileEdgeDetectorConfig()
+config.gabor_kernel_type = "Dirac"
+
+# Create an instance of the SubtileEdgeDetector class with the custom configuration
+detector = SubtileEdgeDetector(config)
+detector.compute(img1)
+detector.plot_results(img1)
+```
 
 Setup
 -----
@@ -118,7 +144,7 @@ Tesing the results of the `SubtileEdgeDetector` on `data/edge_detector_test.png`
 ![Edge test input image](data/edge_detector_test.png)
 
 Yields the following result when `detector.plot_results()` is called:
-![edge_detector_test_all_outputs.png](images%2Fedge_detector_test_all_outputs.png)
+![edge_detector_test_all_outputs.png](images%2Fedge_detector_test_all_outputs.svg)
 
 The top-left panel displays the magnitude of the strongest oriented image gradient. 
 Applying non-maximum suppression results in the binary edge mask shown in the 
@@ -132,7 +158,7 @@ Reviewing the subpixel contours of the lower left pannel, we note the following 
   <tr>
     <td width="25%" valign="top">
       <img src="images/edge_detector_test_all_outputs_255_254_pattern.png" alt="Subtile Brightness Change detail" width="100%">
-      The brightness changes subtily from 255 to 254. Note how the edge detector finds this subtile change.
+      The brightness changes subtily from 255 to 254. Note how the edge detector finds the subtile changes.
     </td>
     <td width="25%" valign="top">
       <img src="images/edge_detector_test_all_outputs_45Deg_pattern.png" alt="45° Subpixel edges detail" width="100%">
