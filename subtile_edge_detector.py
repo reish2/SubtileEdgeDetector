@@ -238,22 +238,23 @@ class SubtileEdgeDetector():
         # Update the non-maximum suppression mask
         self._non_max_suppression_mask = nms_valid
 
-    def compute_edgel_images(self, gray: np.ndarray) -> None:
+    def compute_edgel_images(self, gray_in: np.ndarray) -> None:
         """
         Compute edgel images using the Gabor filter.
 
         This method computes the edge orientation and magnitude using the Gabor gradient kernels.
         It also updates the edgel orthogonal basis vector that will be used for image sampling.
 
-        :param gray: Grayscale input image as a numpy array
+        :param gray_in: Grayscale input image as a numpy array
         """
         # Initialize the tensor to store the results of Gabor filtering
+        gray = gray_in.astype(np.float32)
         gabor_img_grad_tensor = np.zeros((gray.shape[0], gray.shape[1], len(self._gabor_grad_kernels)), dtype=gray.dtype)
 
         # Apply Gabor filtering to the grayscale image using gradient kernels
         for k, kernel in enumerate(self._gabor_grad_kernels):
             depth = -1
-            gabor_img_grad_tensor[:, :, k] = np.absolute(cv2.filter2D(gray, depth, kernel))
+            gabor_img_grad_tensor[:, :, k] = np.absolute(cv2.filter2D(gray.astype(np.float32), depth, kernel))
 
         # Determine the indices of the maximum values along the third axis (gradient angles axis) of the tensor
         argmax = np.argmax(gabor_img_grad_tensor, axis=2)
